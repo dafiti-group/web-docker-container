@@ -35,7 +35,7 @@ RUN apt-get update \
         libsnappy1 \
         libsnappy-dev \
         librabbitmq-dev \
-        librabbitmq0
+        librabbitmq0 \
         php5-cli \
         php5-fpm \
         php5-mysql \
@@ -80,38 +80,38 @@ RUN unzip rabbitmq-c-0.5.2.zip \
     && make \
     && make install \
     && pecl install amqp \
-    && echo "extension=amqp.so" > /etc/php5/mods-available/amqp.ini
+    && echo "extension=amqp.so" > /etc/php5/mods-available/amqp.ini \
     && cd / \
     && rm rabbitmq-c-0.5.2.zip \
     && rm -rf rabbitmq-c-0.5.2
 
-ADD https://github.com/phadej/igbinary/archive/1.0.2.zip /igbinary.zip
-RUN unzip igbinary.zip \
-    && cd igbinary \
+ADD https://github.com/phadej/igbinary/archive/1.0.2.zip /igbinary-1.0.2.zip
+RUN unzip igbinary-1.0.2.zip \
+    && cd igbinary-1.0.2 \
     && phpize \
     && ./configure CFLAGS="-O2 -g" --enable-igbinary --with-php-config=/usr/bin/php-config \
     && make \
     && make install \
     && echo -e "\n\n[igbinary]\n;https://github.com/igbinary/igbinary/\nextension=igbinary.so\n\n;Use igbinary as session serializer\nsession.serialize_handler=igbinary\n\n;Enable or disable compacting of duplicate strings\nigbinary.compact_strings=On\n\n;Use igbinary as serializer in APC cache\n;apc.serializer=igbinary" > /etc/php5/mods-available/igbinary.ini \
     && cd /etc/php5/mods-available \
-    && php5enmod igbinary
+    && php5enmod igbinary \
     && cd / \
-    && rm igbinary.zip \
-    && rm -rf /igbinary
+    && rm igbinary-1.0.2.zip \
+    && rm -rf /igbinary-1.0.2
 
-ADD https://github.com/goatherd/php-snappy/archive/master.zip /php-snappy.zip
-RUN unzip php-snappy.zip \
-    && cd php-snappy \
+ADD https://github.com/goatherd/php-snappy/archive/master.zip /php-snappy-master.zip
+RUN unzip php-snappy-master.zip \
+    && cd php-snappy-master \
     && phpize \
     && ./configure \
     && make \
     && make install \
     && echo "extension=snappy.so" > /etc/php5/mods-available/snappy.ini \
     && cd /etc/php5/mods-available \
-    && php5enmod snappy
+    && php5enmod snappy \
     && cd / \
-    && rm snappy.zip \
-    && rm -rf /snappy
+    && rm php-snappy-master.zip \
+    && rm -rf /php-snappy-master
 
 ADD https://github.com/phpredis/phpredis/archive/2.2.7.zip /phpredis-2.2.7.zip
 RUN unzip phpredis-2.2.7.zip \
