@@ -67,7 +67,7 @@ RUN echo "\n\nxdebug.remote_enable=1" >> /etc/php5/mods-available/xdebug.ini \
 
 ADD https://github.com/phpredis/phpredis/archive/2.2.7.zip /redis.zip
 RUN unzip redis.zip \
-    && cd phpredis \
+    && cd phpredis-2.2.7 \
     && phpize \
     && ./configure \
     && make \
@@ -77,7 +77,7 @@ RUN unzip redis.zip \
     && php5enmod redis \
     && cd / \
     && rm phpredis.zip \
-    && rm -rf phpredis
+    && rm -rf phpredis-2.2.7
 
 RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php5/cli/php.ini \
     && sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php5/fpm/php.ini \
