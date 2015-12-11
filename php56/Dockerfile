@@ -66,8 +66,8 @@ RUN echo "zend_extension=/usr/lib/php5/20131226-zts/xdebug.so" > /etc/php5/mods-
     && echo "\n\nxdebug.remote_host="`/sbin/ip route|awk '/default/ { print $3 }'` >> /etc/php5/mods-available/xdebug.ini \
     && php5enmod xdebug
 
-ADD https://github.com/phpredis/phpredis/archive/2.2.7.zip /redis.zip
-RUN unzip redis.zip \
+ADD https://github.com/phpredis/phpredis/archive/2.2.7.zip /phpredis-2.2.7.zip
+RUN unzip phpredis-2.2.7.zip \
     && cd phpredis-2.2.7 \
     && phpize \
     && ./configure \
@@ -77,7 +77,7 @@ RUN unzip redis.zip \
     && cd /etc/php5/mods-available \
     && php5enmod redis \
     && cd / \
-    && rm phpredis.zip \
+    && rm phpredis-2.2.7.zip \
     && rm -rf phpredis-2.2.7
 
 RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php5/cli/php.ini \

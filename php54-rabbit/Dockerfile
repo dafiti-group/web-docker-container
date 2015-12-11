@@ -97,8 +97,8 @@ RUN unzip php-snappy.zip \
     && rm snappy.zip \
     && rm -rf /snappy
 
-ADD https://github.com/phpredis/phpredis/archive/2.2.7.zip /redis.zip
-RUN unzip redis.zip \
+ADD https://github.com/phpredis/phpredis/archive/2.2.7.zip /phpredis-2.2.7.zip
+RUN unzip phpredis-2.2.7.zip \
     && cd phpredis-2.2.7 \
     && phpize \
     && ./configure \
@@ -108,7 +108,7 @@ RUN unzip redis.zip \
     && cd /etc/php5/mods-available \
     && php5enmod redis \
     && cd / \
-    && rm phpredis.zip \
+    && rm phpredis-2.2.7.zip \
     && rm -rf phpredis-2.2.7
 
 RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php5/cli/php.ini \
