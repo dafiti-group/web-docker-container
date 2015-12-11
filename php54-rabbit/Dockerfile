@@ -142,7 +142,7 @@ RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php5/cl
     && sed -i "s/;pm.max_requests = 500/pm.max_requests = 250/" /etc/php5/fpm/pool.d/www.conf \
     && sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf \
     && sed -i "s/www-data;/docker;\\ndaemon off;/g" /etc/nginx/nginx.conf \
-    && curl -sS https://getcomposer.org/installer | php \
+    && curl --insecure -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/bin/composer
 
 RUN apt-get remove --purge --auto-remove -y \
