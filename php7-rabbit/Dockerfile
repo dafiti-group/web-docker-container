@@ -141,7 +141,7 @@ RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0
     && echo "stdout_events_enabled=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
     && echo "stderr_events_enabled=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
     && echo "[program:php-fpm]" | tee /etc/supervisor/conf.d/php-fpm.conf \
-    && echo "command=/usr/sbin/php-fpm7.0 --nodaemonize" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "command=/usr/sbin/php-fpm7.0 --nodaemonize --fpm-config=/etc/php/7.0/fpm/php-fpm.conf" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
     && echo "autostart=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
     && echo "autorestart=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
     && echo "user=root" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
