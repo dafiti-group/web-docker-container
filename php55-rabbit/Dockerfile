@@ -35,7 +35,7 @@ RUN apt-get update \
         libsnappy1 \
         libsnappy-dev \
         librabbitmq-dev \
-        librabbitmq0 newrelic-php5
+        librabbitmq0
         php5-cli \
         php5-fpm \
         php5-mysql \
@@ -71,6 +71,19 @@ RUN echo "zend_extension=/usr/lib/php5/20121212/xdebug.so" > /etc/php5/mods-avai
     && echo "xdebug.var_display_max_data = -1 " >> /etc/php5/mods-available/xdebug.ini \
     && echo "\n\nxdebug.remote_host="`/sbin/ip route|awk '/default/ { print $3 }'` >> /etc/php5/mods-available/xdebug.ini \
     && php5enmod xdebug
+
+ADD https://github.com/alanxz/rabbitmq-c/archive/v0.5.2.zip /rabbitmq-c-0.5.2.zip
+RUN unzip rabbitmq-c-0.5.2.zip \
+    && cd rabbitmq-c-0.5.2 \
+    && autoreconf -i \
+    && ./configure \
+    && make \
+    && make install \
+    && pecl install amqp \
+    && echo "extension=amqp.so" > /etc/php5/mods-available/amqp.ini
+    && cd / \
+    && rm rabbitmq-c-0.5.2.zip \
+    && rm -rf rabbitmq-c-0.5.2
 
 ADD https://github.com/phadej/igbinary/archive/1.0.2.zip /igbinary.zip
 RUN unzip igbinary.zip \

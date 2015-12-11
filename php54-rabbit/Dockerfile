@@ -69,6 +69,19 @@ RUN echo "\n\nxdebug.remote_enable=1" >> /etc/php5/mods-available/xdebug.ini \
     && echo "xdebug.var_display_max_data = -1 " >> /etc/php5/mods-available/xdebug.ini \
     && echo "\n\nxdebug.remote_host="`/sbin/ip route|awk '/default/ { print $3 }'` >> /etc/php5/mods-available/xdebug.ini
 
+ADD https://github.com/alanxz/rabbitmq-c/archive/v0.5.2.zip /rabbitmq-c-0.5.2.zip
+RUN unzip rabbitmq-c-0.5.2.zip \
+    && cd rabbitmq-c-0.5.2 \
+    && autoreconf -i \
+    && ./configure \
+    && make \
+    && make install \
+    && pecl install amqp \
+    && echo "extension=amqp.so" > /etc/php5/mods-available/amqp.ini
+    && cd / \
+    && rm rabbitmq-c-0.5.2.zip \
+    && rm -rf rabbitmq-c-0.5.2
+
 ADD https://github.com/phadej/igbinary/archive/1.0.2.zip /igbinary.zip
 RUN unzip igbinary.zip \
     && cd igbinary \
