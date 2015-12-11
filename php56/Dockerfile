@@ -73,7 +73,7 @@ RUN unzip redis.zip \
     && ./configure \
     && make \
     && make install \
-    && echo "extension=redis.so" | tee /etc/php/mods-available/redis.ini \
+    && echo "extension=redis.so" | tee /etc/php5/mods-available/redis.ini \
     && cd /etc/php5/mods-available \
     && php5enmod redis \
     && cd / \
