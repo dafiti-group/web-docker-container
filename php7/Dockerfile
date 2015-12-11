@@ -48,7 +48,7 @@ RUN apt-get update \
         php7.0-pspell \
     && rm -r /var/lib/apt/lists/*
 
-ADD https://github.com/mkoppanen/imagick/archive/phpseven.zip /imagick-imagick-phpseven.zip
+ADD https://github.com/mkoppanen/imagick/archive/phpseven.zip /imagick-phpseven.zip
 RUN unzip imagick-phpseven.zip \
     && cd imagick-phpseven \
     && phpize \
