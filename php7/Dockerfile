@@ -115,12 +115,6 @@ RUN wget --no-check-certificate https://github.com/alanxz/rabbitmq-c/archive/mas
     && rm master.zip \
     && rm -rf php-amqp-master
 
-
-# RUN apt-get update && apt-get install -y vim make git whiptail mlocate net-tools curl procps \
-#     re2c php5-cli php5-fpm php5-mysql mysql-client php5-intl php5-recode \
-#     php5-snmp php5-mcrypt php5-memcache php5-memcached php5-imagick php5-curl php5-xsl php5-snmp \
-#     php5-dev php5-tidy php5-xmlrpc php5-gd php5-pspell php-pear nginx pkg-config newrelic-php5
-
 RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0/cli/php.ini \
     && sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0/fpm/php.ini \
     # && sed -i "s/short_open_tag = On/short_open_tag = Off/" /etc/php/7.0/cli/php.ini \
@@ -131,6 +125,7 @@ RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0
     && sed -i "s/display_errors = Off/display_errors = On/" /etc/php/7.0/fpm/php.ini \
     && sed -i "s/display_startup_errors = Off/display_startup_errors = On/" /etc/php/7.0/cli/php.ini \
     && sed -i "s/display_startup_errors = Off/display_startup_errors = On/" /etc/php/7.0/fpm/php.ini \
+    && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.0/fpm/php-fpm.conf \
     && sed -i "s/www-data/docker/g" /etc/php/7.0/fpm/pool.d/www.conf \
     && sed -i "s/pm.max_children = 5/pm.max_children = 35/" /etc/php/7.0/fpm/pool.d/www.conf \
     && sed -i "s/pm.start_servers = 2/pm.start_servers = 10/" /etc/php/7.0/fpm/pool.d/www.conf \
@@ -138,6 +133,23 @@ RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0
     && sed -i "s/pm.max_spare_servers = 3/pm.max_spare_servers = 17/" /etc/php/7.0/fpm/pool.d/www.conf \
     && sed -i "s/;pm.max_requests = 500/pm.max_requests = 250/" /etc/php/7.0/fpm/pool.d/www.conf \
     && sed -i "s/www-data;/docker;\\ndaemon off;/g" /etc/nginx/nginx.conf \
+    && echo "[supervisord]" | tee /etc/supervisor/conf.d/core.conf \
+    && echo "nodaemon=true" | tee -a /etc/supervisor/conf.d/core.conf \
+    && echo "[program:nginx]" | tee /etc/supervisor/conf.d/nginx.conf \
+    && echo "command=/usr/sbin/nginx" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "autostart=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "autorestart=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "priority=10" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "user=root" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "stdout_events_enabled=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "stderr_events_enabled=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "[program:php-fpm]" | tee /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "command=/usr/sbin/php-fpm7.0 --nodaemonize" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "autostart=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "autorestart=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "user=root" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "stdout_events_enabled=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "stderr_events_enabled=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
     && curl --insecure -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/bin/composer
 
@@ -156,17 +168,6 @@ RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0
 #     && echo "\n\nxdebug.remote_host="`/sbin/ip route|awk '/default/ { print $3 }'` >> /etc/php5/mods-available/xdebug.ini \
 #     && php5enmod xdebug
 
-# RUN apt-get purge -y \
-#         libmagickwand-dev \
-#         libmemcached-dev \
-#         librabbitmq-dev \
-#         php7.0-dev \
-#         vim \
-#         unzip \
-#         wget \
-#     && apt-get autoremove -y \
-#     && apt-get clean \
-#     && rm -r /var/lib/apt/lists/*
 RUN apt-get remove --purge --auto-remove -y \
         vim \
         unzip \
@@ -176,9 +177,7 @@ RUN apt-get remove --purge --auto-remove -y \
     && apt-get clean \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
-COPY run.sh /run.sh
-RUN chmod a+x /run.sh
-
 EXPOSE 80 443
 
-ENTRYPOINT ["/run.sh"]
+CMD ["/usr/bin/supervisord", "-n"]
+# ENTRYPOINT ["/run.sh"]
