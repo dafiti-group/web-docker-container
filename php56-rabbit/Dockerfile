@@ -9,8 +9,8 @@ RUN useradd -u 1000 docker \
     && apt-get install -y --no-install-recommends wget \
     && rm -r /var/lib/apt/lists/*
 
-RUN echo "deb http://packages.dotdeb.org wheezy-php55 all" > /etc/apt/sources.list.d/dotdeb.list \
-    && echo "deb-src http://packages.dotdeb.org wheezy-php55 all" >> /etc/apt/sources.list.d/dotdeb.list \
+RUN echo "deb http://packages.dotdeb.org wheezy-php56-zts all" > /etc/apt/sources.list.d/dotdeb.list \
+    && echo "deb-src http://packages.dotdeb.org wheezy-php56-zts all" >> /etc/apt/sources.list.d/dotdeb.list \
     && echo "deb http://packages.dotdeb.org wheezy all" >> /etc/apt/sources.list.d/dotdeb.list \
     && echo "deb-src http://packages.dotdeb.org wheezy all" >> /etc/apt/sources.list.d/dotdeb.list \
     && wget -O - http://www.dotdeb.org/dotdeb.gpg | apt-key add - \
@@ -30,8 +30,12 @@ RUN apt-get update \
         curl \
         procps \
         re2c \
-        supervisor \
         nginx \
+        supervisor \
+        libsnappy1 \
+        libsnappy-dev \
+        librabbitmq-dev \
+        librabbitmq0 \
         php5-cli \
         php5-fpm \
         php5-mysql \
@@ -55,7 +59,7 @@ RUN apt-get update \
     && rm -r /var/lib/apt/lists/*
 
 RUN pecl install xdebug-2.3.2
-RUN echo "zend_extension=/usr/lib/php5/20121212/xdebug.so" > /etc/php5/mods-available/xdebug.ini \
+RUN echo "zend_extension=/usr/lib/php5/20131226-zts/xdebug.so" > /etc/php5/mods-available/xdebug.ini \
     && echo "\n\nxdebug.remote_enable=1" >> /etc/php5/mods-available/xdebug.ini \
     && echo "xdebug.remote_handler=dbgp" >> /etc/php5/mods-available/xdebug.ini \
     && echo "xdebug.remote_mode=req" >> /etc/php5/mods-available/xdebug.ini \
@@ -67,6 +71,44 @@ RUN echo "zend_extension=/usr/lib/php5/20121212/xdebug.so" > /etc/php5/mods-avai
     && echo "xdebug.var_display_max_data = -1 " >> /etc/php5/mods-available/xdebug.ini \
     && echo "\n\nxdebug.remote_host="`/sbin/ip route|awk '/default/ { print $3 }'` >> /etc/php5/mods-available/xdebug.ini \
     && php5enmod xdebug
+
+ADD https://github.com/alanxz/rabbitmq-c/archive/v0.5.2.zip /rabbitmq-c.zip
+RUN unzip rabbitmq-c.zip \
+    && cd rabbitmq-c \
+    && autoreconf -i \
+    && ./configure \
+    && make \
+    && make install \
+    && pecl install amqp \
+    && echo "extension=amqp.so" > /etc/php5/mods-available/amqp.ini
+
+ADD https://github.com/phadej/igbinary/archive/1.0.2.zip /igbinary.zip
+RUN unzip igbinary.zip \
+    && cd igbinary \
+    && phpize \
+    && ./configure CFLAGS="-O2 -g" --enable-igbinary --with-php-config=/usr/bin/php-config \
+    && make \
+    && make install \
+    && echo -e "\n\n[igbinary]\n;https://github.com/igbinary/igbinary/\nextension=igbinary.so\n\n;Use igbinary as session serializer\nsession.serialize_handler=igbinary\n\n;Enable or disable compacting of duplicate strings\nigbinary.compact_strings=On\n\n;Use igbinary as serializer in APC cache\n;apc.serializer=igbinary" > /etc/php5/mods-available/igbinary.ini \
+    && cd /etc/php5/mods-available \
+    && php5enmod igbinary
+    && cd / \
+    && rm igbinary.zip \
+    && rm -rf /igbinary
+
+ADD https://github.com/goatherd/php-snappy/archive/master.zip /php-snappy.zip
+RUN unzip php-snappy.zip \
+    && cd php-snappy \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=snappy.so" > /etc/php5/mods-available/snappy.ini \
+    && cd /etc/php5/mods-available \
+    && php5enmod snappy
+    && cd / \
+    && rm snappy.zip \
+    && rm -rf /snappy
 
 ADD https://github.com/phpredis/phpredis/archive/2.2.7.zip /redis.zip
 RUN unzip redis.zip \

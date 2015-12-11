@@ -32,6 +32,10 @@ RUN apt-get update \
         re2c \
         supervisor \
         nginx \
+        libsnappy1 \
+        libsnappy-dev \
+        librabbitmq-dev \
+        librabbitmq0 newrelic-php5
         php5-cli \
         php5-fpm \
         php5-mysql \
@@ -67,6 +71,34 @@ RUN echo "zend_extension=/usr/lib/php5/20121212/xdebug.so" > /etc/php5/mods-avai
     && echo "xdebug.var_display_max_data = -1 " >> /etc/php5/mods-available/xdebug.ini \
     && echo "\n\nxdebug.remote_host="`/sbin/ip route|awk '/default/ { print $3 }'` >> /etc/php5/mods-available/xdebug.ini \
     && php5enmod xdebug
+
+ADD https://github.com/phadej/igbinary/archive/1.0.2.zip /igbinary.zip
+RUN unzip igbinary.zip \
+    && cd igbinary \
+    && phpize \
+    && ./configure CFLAGS="-O2 -g" --enable-igbinary --with-php-config=/usr/bin/php-config \
+    && make \
+    && make install \
+    && echo -e "\n\n[igbinary]\n;https://github.com/igbinary/igbinary/\nextension=igbinary.so\n\n;Use igbinary as session serializer\nsession.serialize_handler=igbinary\n\n;Enable or disable compacting of duplicate strings\nigbinary.compact_strings=On\n\n;Use igbinary as serializer in APC cache\n;apc.serializer=igbinary" > /etc/php5/mods-available/igbinary.ini \
+    && cd /etc/php5/mods-available \
+    && php5enmod igbinary
+    && cd / \
+    && rm igbinary.zip \
+    && rm -rf /igbinary
+
+ADD https://github.com/goatherd/php-snappy/archive/master.zip /php-snappy.zip
+RUN unzip php-snappy.zip \
+    && cd php-snappy \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=snappy.so" > /etc/php5/mods-available/snappy.ini \
+    && cd /etc/php5/mods-available \
+    && php5enmod snappy
+    && cd / \
+    && rm snappy.zip \
+    && rm -rf /snappy
 
 ADD https://github.com/phpredis/phpredis/archive/2.2.7.zip /redis.zip
 RUN unzip redis.zip \

@@ -90,6 +90,30 @@ RUN unzip phpredis-php7.zip \
     && rm phpredis-php7.zip \
     && rm -rf phpredis-php7
 
+ADD https://github.com/alanxz/rabbitmq-c/archive/master.zip /rabbitmq-c-master.zip
+ADD https://github.com/pinepain/php-amqp/archive/master.zip /php-amqp-master.zip
+RUN unzip rabbitmq-c-master.zip \
+    && cd rabbitmq-c-master \
+    && autoreconf -i \
+    && ./configure \
+    && make \
+    && make install \
+    && cd / \
+    && rm rabbitmq-c-master.zip \
+    && rm -rf rabbitmq-c-master \
+    && unzip php-amqp-master.zip \
+    && cd php-amqp-master \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=amqp.so" | tee /etc/php/mods-available/amqp.ini \
+    && ln -s /etc/php/mods-available/amqp.ini /etc/php/7.0/fpm/conf.d/20-amqp.ini \
+    && ln -s /etc/php/mods-available/amqp.ini /etc/php/7.0/cli/conf.d/20-amqp.ini \
+    && cd / \
+    && rm php-amqp-master.zip \
+    && rm -rf php-amqp-master
+
 RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0/cli/php.ini \
     && sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0/fpm/php.ini \
     && sed -i "s/error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT/error_reporting = E_ALL/" /etc/php/7.0/cli/php.ini \
