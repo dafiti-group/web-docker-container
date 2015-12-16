@@ -142,6 +142,23 @@ RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php5/cl
     && sed -i "s/;pm.max_requests = 500/pm.max_requests = 250/" /etc/php5/fpm/pool.d/www.conf \
     && sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf \
     && sed -i "s/www-data;/docker;\\ndaemon off;/g" /etc/nginx/nginx.conf \
+    && echo "[supervisord]" | tee /etc/supervisor/conf.d/core.conf \
+    && echo "nodaemon=true" | tee -a /etc/supervisor/conf.d/core.conf \
+    && echo "[program:nginx]" | tee /etc/supervisor/conf.d/nginx.conf \
+    && echo "command=/usr/sbin/nginx" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "autostart=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "autorestart=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "priority=10" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "user=root" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "stdout_events_enabled=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "stderr_events_enabled=true" | tee -a /etc/supervisor/conf.d/nginx.conf \
+    && echo "[program:php-fpm]" | tee /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "command=/usr/sbin/php5-fpm --nodaemonize" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "autostart=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "autorestart=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "user=root" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "stdout_events_enabled=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && echo "stderr_events_enabled=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
     && curl --insecure -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/bin/composer
 
