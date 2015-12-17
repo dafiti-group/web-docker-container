@@ -147,6 +147,7 @@ RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0
     && echo "user=root" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
     && echo "stdout_events_enabled=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
     && echo "stderr_events_enabled=true" | tee -a /etc/supervisor/conf.d/php-fpm.conf \
+    && mkdir -p /run/php \
     && curl --insecure -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/bin/composer
 
