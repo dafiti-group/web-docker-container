@@ -114,6 +114,20 @@ RUN unzip rabbitmq-c-master.zip \
     && rm php-amqp-master.zip \
     && rm -rf php-amqp-master
 
+ADD https://github.com/xdebug/xdebug/archive/master.zip /xdebug-master.zip
+RUN unzip xdebug-master.zip \
+    && cd xdebug-master \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "zend_extension=xdebug.so" | tee /etc/php/mods-available/xdebug.ini \
+    && ln -s /etc/php/mods-available/xdebug.ini /etc/php/7.0/fpm/conf.d/10-xdebug.ini \
+    && ln -s /etc/php/mods-available/xdebug.ini /etc/php/7.0/cli/conf.d/10-xdebug.ini \
+    && cd / \
+    && rm xdebug-master.zip \
+    && rm -rf xdebug-master
+
 RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0/cli/php.ini \
     && sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0/fpm/php.ini \
     && sed -i "s/error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT/error_reporting = E_ALL/" /etc/php/7.0/cli/php.ini \
@@ -151,20 +165,16 @@ RUN sed -i "s/;date.timezone =/date.timezone = America\/Sao_Paulo/" /etc/php/7.0
     && curl --insecure -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/bin/composer
 
-# COPY xdebug.ini /etc/php5/mods-available/xdebug.ini
-# RUN pecl install xdebug-2.3.2
-# RUN echo "zend_extension=/usr/lib/php5/20131226-zts/xdebug.so" > /etc/php5/mods-available/xdebug.ini \
-#     && echo "\n\nxdebug.remote_enable=1" >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "xdebug.remote_handler=dbgp" >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "xdebug.remote_mode=req" >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "xdebug.remote_port=9001" >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "xdebug.remote_autostart=1" >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "xdebug.remote_connect_back=1" >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "\n\nxdebug.var_display_max_depth = -1 " >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "xdebug.var_display_max_children = -1" >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "xdebug.var_display_max_data = -1 " >> /etc/php5/mods-available/xdebug.ini \
-#     && echo "\n\nxdebug.remote_host="`/sbin/ip route|awk '/default/ { print $3 }'` >> /etc/php5/mods-available/xdebug.ini \
-#     && php5enmod xdebug
+RUN echo "\n\nxdebug.remote_enable=1" >> /etc/php/mods-available/xdebug.ini \
+     && echo "xdebug.remote_handler=dbgp" >> /etc/php/mods-available/xdebug.ini \
+     && echo "xdebug.remote_mode=req" >> /etc/php/mods-available/xdebug.ini \
+     && echo "xdebug.remote_port=9001" >> /etc/php/mods-available/xdebug.ini \
+     && echo "xdebug.remote_autostart=1" >> /etc/php/mods-available/xdebug.ini \
+     && echo "xdebug.remote_connect_back=1" >> /etc/php/mods-available/xdebug.ini \
+     && echo "\n\nxdebug.var_display_max_depth = -1 " >> /etc/php/mods-available/xdebug.ini \
+     && echo "xdebug.var_display_max_children = -1" >> /etc/php/mods-available/xdebug.ini \
+     && echo "xdebug.var_display_max_data = -1 " >> /etc/php/mods-available/xdebug.ini \
+     && echo "\n\nxdebug.remote_host="`/sbin/ip route|awk '/default/ { print $6 }'` >> /etc/php/mods-available/xdebug.ini
 
 RUN apt-get remove --purge --auto-remove -y \
         unzip \
