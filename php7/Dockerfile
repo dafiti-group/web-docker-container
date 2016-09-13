@@ -24,6 +24,7 @@ RUN apt-get update \
         mlocate \
         net-tools \
         curl \
+        git \
         procps \
         re2c \
         libmagickwand-dev \
